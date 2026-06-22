@@ -1,0 +1,42 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MPL 2.0"
+issueTrackerURL = "https://github.com/Patbox/SleepWarp/issues"
+
+[[mods]]
+modId = "sleepwarp"
+namespace = "sleepwarp"
+version = "${version}"
+displayName = "SleepWarp (Updated)"
+description = "Accelerates time when sleeping instead of skipping directly to day."
+logoFile = "assets/sleepwarp/icon.png"
+modUrl = "https://modrinth.com/mod/sleep-warp-updated"
+displayURL = "https://modrinth.com/mod/sleep-warp-updated"
+authors = "thegiggitybyte (Original Creator), Patbox (Updating and release), Motschen (Update to 1.21, new config)"
+
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"
+
+[[mixins]]
+config = "sleepwarp.mixins.json"
+
+[[dependencies.sleepwarp]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[1,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.sleepwarp]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "${minecraft_version_range}"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.sleepwarp]]
+    modId = "midnightlib"
+    type = "required"
+    versionRange = "[1,)"
+    ordering = "NONE"
+    side = "BOTH"

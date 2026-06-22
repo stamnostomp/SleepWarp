@@ -2,7 +2,9 @@ package me.thegiggitybyte.sleepwarp;
 
 import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import me.thegiggitybyte.sleepwarp.runnable.*;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -28,12 +30,19 @@ public class WarpEngine {
 
     private WarpEngine() {
         random = new Random();
-        ServerTickEvents.END_LEVEL_TICK.register(this::onEndTick);
+        NeoForge.EVENT_BUS.register(this);
     }
 
     public static void initialize() {
         if (instance != null) throw new AssertionError();
         instance = new WarpEngine();
+    }
+
+    @SubscribeEvent
+    public void onLevelTick(LevelTickEvent.Post event) {
+        if (event.getLevel() instanceof ServerLevel world) {
+            onEndTick(world);
+        }
     }
 
     private void onEndTick(ServerLevel world) {

@@ -1,13 +1,16 @@
 package me.thegiggitybyte.sleepwarp;
 
 import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
-import net.fabricmc.api.ModInitializer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 
-public class SleepWarp implements ModInitializer {
-    @Override
-    public void onInitialize() {
+@Mod(SleepWarp.MOD_ID)
+public class SleepWarp {
+    public static final String MOD_ID = "sleepwarp";
+
+    public SleepWarp() {
         SleepWarpConfig.init("sleepwarp", SleepWarpConfig.class);
-        Commands.register();
+        NeoForge.EVENT_BUS.register(Commands.class);
         WarpEngine.initialize();
     }
 }

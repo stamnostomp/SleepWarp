@@ -1,15 +1,12 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.141'
     id "com.modrinth.minotaur" version "2.+"
     id 'maven-publish'
 }
 
 repositories {
-    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
-    maven { url = "https://maven.isxander.dev/releases" }
-    maven { url "https://maven.terraformersmc.com/releases/"}
-    maven { url 'https://api.modrinth.com/maven' }
-    maven { url = "https://maven.nucleoid.xyz/" }
+    maven { url = "https://api.modrinth.com/maven" }
 }
 
 base {
@@ -18,34 +15,48 @@ base {
 version = project.mod_version + '+' + project.minecraft_version
 group = project.maven_group
 
-dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-    implementation include("xyz.nucleoid:server-translations-api:${project.server_translation_version}")
-    implementation include ("maven.modrinth:midnightlib:${project.midnightlib_version}-fabric")
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/sleepwarp.accesswidener")
+dependencies {
+    jarJar(implementation("maven.modrinth:midnightlib:${project.midnightlib_version}-neoforge")) {
+        version {
+            strictly "[${project.midnightlib_version}-neoforge,)"
+            prefer "${project.midnightlib_version}-neoforge"
+        }
+    }
 }
 
 processResources {
     inputs.property "version", project.version
 
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version, "minecraft_version_range": project.minecraft_version_range
     }
-
 
     from("src/main/resources/data/sleepwarp/lang") {
         into("assets/sleepwarp/lang")
     }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
 }
 
 java {
@@ -58,7 +69,6 @@ jar {
     }
 }
 
-
 if (System.getenv("MODRINTH")) {
     modrinth {
         token = System.getenv("MODRINTH")
@@ -68,7 +78,7 @@ if (System.getenv("MODRINTH")) {
         uploadFile = jar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
         gameVersions = [((String) project.minecraft_version)]
         changelog = System.getenv("CHANGELOG")
-        loaders = ["fabric"]
+        loaders = ["neoforge"]
 
         dependencies {
             required.project "midnightlib"
